@@ -33,29 +33,42 @@ class User(models.Model):
 
 
 # Model for Year Order
-class YearOrder(models.Model):
-    year = models.DateField(verbose_name="Year")
+class PresidentDecree(models.Model):
+    number_president_decree=models.IntegerField(verbose_name='Number president decree')
+    year = models.DateField(verbose_name="Year date")
+
+
+    @property
+    def formatted_date(self):
+        return self.year.strftime("%Y-%m-%d")  # Formatni kerakli ko‘rinishga moslang
 
     def __str__(self):
-        return str(self.year.year)
+        return f'{self.formatted_date} -decree of {self.number_president_decree}'
 
     class Meta:
-        verbose_name = "Year Order"
-        verbose_name_plural = "Year Orders"
+        verbose_name = "Presiden Decree"
+        verbose_name_plural = "President Decrees"
         ordering = ['year']
-
-
-# Model for Award Orders (Orders of awarding)
+#
+# # Model for Award Orders (Orders of awarding)
 class AwardOrder(models.Model):
     award = models.ForeignKey(Award, on_delete=models.CASCADE, related_name="award_orders", verbose_name="Award")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="award_orders", verbose_name="Recipient")
-    order_type = models.CharField(max_length=100, verbose_name="Order Type")
-    year = models.ForeignKey(YearOrder, on_delete=models.CASCADE, related_name="award_orders", verbose_name="Year")
+    choice_type=(
+        ("Unvon", "Unvon"),
+        ("Mukofot", "Mukofot"),
+        ("Orden", "Orden"),
+        ("Medal", "Medal")
+    )
+    order_type = models.CharField(max_length=100, verbose_name="Order Type", choices=choice_type)
+    number_president_decree = models.ForeignKey(PresidentDecree, on_delete=models.CASCADE, related_name="award_orders", verbose_name="Number decree")
 
     def __str__(self):
-        return f"{self.award.name} - {self.user.fio} - {self.year.year}"
+        return f"{self.award.name} - {self.user.fio} - {self.number_president_decree.year}-president decree of {self.number_president_decree.number_president_decree}-"
 
     class Meta:
         verbose_name = "Award Order"
         verbose_name_plural = "Award Orders"
-        ordering = ['year', 'award']
+        ordering = ['number_president_decree', 'award']
+
+
