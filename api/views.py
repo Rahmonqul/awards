@@ -6,6 +6,8 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from django.core.paginator import Paginator
 from rest_framework import filters
+from .filters import AwardOrderFilter, AwardOrderFilterYear
+from django_filters.rest_framework import DjangoFilterBackend
 class AwardApiView(APIView):
     def get(self, request):
         awards = Award.objects.all()
@@ -38,14 +40,26 @@ class PresidentDecreeYearApiView(APIView):
 
 class AwardOrderApiView(APIView):
     def get(self, request):
-        award_order = AwardOrder.objects.all()  # Получаем все записи
-        serializer = AwardOrderSerializer(award_order, many=True)  # Сериализуем данные
+        award_order = AwardOrder.objects.all()
+        serializer = AwardOrderSerializer(award_order, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class AwardOwnerSearchApiView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = AwardOwnerSerializer
-    permission_classes = []  # Если нужно, можно настроить разрешения
+    # permission_classes = []  #
 
     filter_backends = (filters.SearchFilter,)
-    search_fields = ['fio']  # Поле, по которому будет проводиться поиск
+    search_fields = ['fio']
+
+class AwardOwnerFilterApiView(ListAPIView):
+    queryset = AwardOrder.objects.all()
+    serializer_class = AwardOwnerFilterSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = AwardOrderFilter
+
+class AwardFilterYearApiview(ListAPIView):
+    queryset = AwardOrder.objects.all()
+    serializer_class = AwardOownerFilterYearSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = AwardOrderFilterYear
